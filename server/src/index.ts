@@ -5,6 +5,7 @@ console.log("[exec] Point d'entrée du serveur atteint....");
 
 app.listen(env.PORT, () => {
   console.log("API listening on port", env.PORT);
+  console.log("📘 Swagger UI available at: http://localhost:8080/docs");
 });
 
 /// ============================================================================

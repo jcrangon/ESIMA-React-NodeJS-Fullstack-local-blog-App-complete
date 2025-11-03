@@ -75,7 +75,8 @@ export const env = {
   JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET!,
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET!,
   ACCESS_TOKEN_TTL: process.env.ACCESS_TOKEN_TTL || "15m",
-  REFRESH_TOKEN_TTL: process.env.REFRESH_TOKEN_TTL || "7d",
+  REFRESH_TOKEN_TTL_SHORT: process.env.REFRESH_TOKEN_TTL_SHORT || "7d",
+  REFRESH_TOKEN_TTL_LONG: process.env.REFRESH_TOKEN_TTL_LONG || "30d",
 
   COOKIE_DOMAIN: process.env.COOKIE_DOMAIN || "localhost",
   CORS_ORIGIN: CORS_ORIGINS[0] || "",
@@ -83,6 +84,16 @@ export const env = {
 
   COOKIE_SECURE: IS_PROD,
   UPLOAD_DIR: process.env.UPLOAD_DIR!,
+  MAX_UPLOAD_SIZE_MB: process.env.MAX_UPLOAD_SIZE_MB || "5",
+  BCRYPT_ROUNDS: process.env.BCRYPT_ROUNDS || "12",
+  JWT_ISSUER: process.env.JWT_ISSUER || "my-app",
+  JWT_AUDIENCE: process.env.JWT_AUDIENCE || "my-app-users",
+
+  FRONTEND_RESET_URL: process.env.FRONTEND_RESET_URL || "http://localhost:5173/auth/reset-password",
+  SMTP_HOST: process.env.SMTP_HOST || "localhost",
+  SMTP_PORT: process.env.SMTP_PORT || "25",
+  SMTP_USER: process.env.SMTP_USER || "smtp-test",
+  SMTP_PASS: process.env.SMTP_PASS || "123456",
 };
 
 if (IS_DEV) {

@@ -25,7 +25,7 @@ function setupDebug() {
   // Debug bas niveau: collection, méthode et paramètres
   // (en évitant d'afficher les buffers/document volumineux)
   mongoose.set("debug", function (collectionName: string, methodName: string, ...methodArgs: any[]) {
-    const argsPreview = JSON.stringify(methodArgs, (_k, v) => (v && v._id ? String(v._id) : v));
+    const argsPreview = JSON.stringify(methodArgs, (_k, v) => (v?._id ? String(v._id) : v));
     console.log(`[mongo:debug] ${collectionName}.${methodName} args=${argsPreview}`);
   });
 }

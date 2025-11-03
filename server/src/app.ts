@@ -10,31 +10,76 @@ import authRoutes from "./routes/auth.route";
 import userRoutes from "./routes/user.route";
 import postRoutes from "./routes/post.route";
 import generalRoutes from "./routes/general.route";
-import { errorHandler } from "./middlewares/error.middleware";
+import { errorHandler, notFound } from "./middlewares/error.middleware";
+import { requestId } from "./middlewares/requestId.middleware";
+import { accessLogger } from "./middlewares/logging";
+import errorTestRoutes from "./routes/errorTest.route";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yaml";
+import fs from "node:fs";
+
 
 const app = express();
 
-app.use(helmet());
-app.use(morgan("dev"));
-app.use(compression());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+// Charger le fichier YAML
+const swaggerFile = fs.readFileSync(path.join(__dirname, "../openapi.yaml"), "utf8");
+const swaggerDoc = YAML.parse(swaggerFile);
+
 app.set("trust proxy", true);
 
 app.use(
-  cors({
-    origin: env.CORS_ORIGIN.split(","),
-    credentials: true,
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
   })
 );
 
+app.use(compression());
+app.use(cookieParser());
+
+// 2) CORS d'abord (IMPORTANT)
+app.use(
+  cors({
+    origin: env.CORS_ORIGIN.split(","), // ex: "http://localhost:5173"
+    credentials: true,                  // on envoie les cookies ?
+    allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Origin"],
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+  })
+);
+
+
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan("dev"));
+app.use(requestId);
+app.use(accessLogger);
+
+
+app.use("/uploads", (req, res, next) => {
+  res.header("Access-Control-Allow-Origin", env.CORS_ORIGIN);
+  res.header("Cross-Origin-Resource-Policy", "cross-origin");
+  next();
+});
+
 app.use("/uploads", express.static(path.resolve(env.UPLOAD_DIR)));
 
+// supprime les erreur 404 pour favicon et chrome devtools inutiles
+app.get("/favicon.ico", (_req, res) => {
+  res.status(204).end();
+});
+app.get("/.well-known/appspecific/com.chrome.devtools.json", (_req, res) => {
+  res.status(204).end();
+});
+
+// router
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 app.use("/", generalRoutes);
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/posts", postRoutes);
+app.use("/error-test", errorTestRoutes);
+
+app.use(notFound);
 
 app.use(errorHandler);
 

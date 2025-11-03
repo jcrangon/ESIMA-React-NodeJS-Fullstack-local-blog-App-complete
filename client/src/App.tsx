@@ -2,8 +2,17 @@ import { Routes, Route, Outlet, Navigate } from "react-router-dom";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
-import Dashboard from "@/pages/Dasboard";
-
+import Dashboard from "@/pages/Dashboard";
+import ProtectedRoute from "./auth/ProtectedRoute";
+import Single from "./pages/Single";
+import DashboardPostNew from "./pages/DashboardPostNew";
+import DashboardPostEdit from "./pages/DashboardPostEdit";
+import DashboardUserEdit from "./pages/DashboardUserEdit";
+import MentionsLegalesPage from "./pages/Legal/Mentions";
+import PrivacyPolicyPage from "./pages/Legal/Confidentiality";
+import Contact from "./pages/Contact";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPasswordPage from "./pages/ResetPassword";
 
 // Verification  du fichier d'environnement
 console.log("Environnement:", import.meta.env.VITE_NODE_ENV);
@@ -16,32 +25,36 @@ function PrefixOnly() {
   return <Outlet />;
 }
 
-// Route protégée (exemple minimal)
-function ProtectedRoute() {
-  const isAuth = false; 
-  // TODO: ici on branchera la vraie logique d'authentification
-
-  return isAuth ? <Outlet /> : <Navigate to="/login" replace />;
-}
-
 export default function App() {
   return (
     <Routes>
       {/* Routes publiques "simples" */}
       <Route path="/" element={<Home />} />
-      
+      <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
+      <Route path="/confidentialite" element={<PrivacyPolicyPage />} />
+      <Route path="/contact" element={<Contact />} />
 
       {/* Préfixe public : /auth/* */}
       <Route path="/auth" element={<PrefixOnly />}>
         <Route path="login" element={<Login />} />  {/* auth/login */}
         <Route path="register" element={<Register />} /> {/* auth/register */}
+        <Route path="forgot-password" element={<ForgotPassword />} /> {/* auth/forgot-password */}
+        <Route path="reset-password" element={<ResetPasswordPage />} /> {/* auth/reset-password */}
       </Route>
 
-      {/* Préfixe protégé : /dashboard/* */}
+      {/* Préfixe public : /posts/* */}
+      <Route path="/posts" element={<PrefixOnly />}>
+        <Route path=":id" element={<Single />} />  {/* posts/:id */}
+      </Route>
+
+      {/* Préfixe protégé : /admin/* */}
       <Route path="/admin" element={<ProtectedRoute />}>
         <Route path="dashboard" element={<PrefixOnly />}>
           <Route index element={<Dashboard />} />                 {/* /dashboard */}
           {/* Ajoute ici d'autres sous-routes protégées */}
+          <Route path="posts/new" element={<DashboardPostNew />} />  {/* posts/new */}
+          <Route path="posts/:id/edit" element={<DashboardPostEdit />} />  {/* posts/:id/edit */}
+          <Route path="users/:id/edit" element={<DashboardUserEdit />} />  {/* users/:id/edit */}
         </Route>
       </Route>
 
